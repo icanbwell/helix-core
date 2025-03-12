@@ -1,0 +1,13 @@
+version: '3.5'
+services:
+  dev:
+    user: root
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - ./:/usr/src/helixcore
+    container_name: helixcore_dev
+    working_dir: /usr/src/helixcore
+    env_file:
+      - docker.env
