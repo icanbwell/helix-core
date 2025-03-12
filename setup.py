@@ -56,10 +56,10 @@ setup(
     url="https://github.com/icanbwell/helix-core",
     packages=find_packages(),
     install_requires=[
-        "fhir.resources==7.1.0",
+        "fhir.resources<8,>=7.1.0",
         "dataclasses-json>=0.6.7",
         "boto3>=1.34.140",
-        "helix.fhir.client.sdk==3.0.27",
+        "helix.fhir.client.sdk>=3.0.27",
         "furl>=2.1.3",
         "mlflow-skinny>=2.17.2",
         "sqlparse>=0.5.3",

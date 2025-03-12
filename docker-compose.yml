@@ -1,7 +1,9 @@
 version: '3.5'
 services:
   dev:
-    user: root
+    depends_on:
+      - warehouse
+      - mongo
     build:
       dockerfile: Dockerfile
       context: .
@@ -11,3 +13,30 @@ services:
     working_dir: /usr/src/helixcore
     env_file:
       - docker.env
+    environment:
+      ENV: local
+      WAREHOUSE_DB_HOST: warehouse
+      WAREHOUSE_DB_PASSWORD: root_password
+      WAREHOUSE_DB_USERNAME: root
+      WAREHOUSE_DB_PORT: 3306
+      WAREHOUSE_DB_DB: fhir_rpt
+
+  warehouse:
+    image: mariadb:10.11.9
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: fhir_rpt
+    ports:
+      - '33061:3306'
+    command: --sql-mode="STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION"
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+
+  mongo:
+    image: mongo:8.0.4
+    ports:
+      - '27017:27017'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
