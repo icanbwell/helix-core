@@ -34,6 +34,9 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.PYPI }}
       run: |
         docker compose run --rm -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} dev sh -c "
+          mkdir -p /app/helixcore.egg-info &&
+          chmod -R 777 /app &&
+          pip install --upgrade pip && 
           pip install twine wheel &&
           python setup.py sdist bdist_wheel &&
           twine upload dist/*
