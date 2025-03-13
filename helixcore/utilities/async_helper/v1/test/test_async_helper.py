@@ -2,7 +2,7 @@ import pytest
 import asyncio
 from typing import AsyncGenerator, Dict
 from helixcore.utilities.async_helper.v1.async_helper import AsyncHelper
-from helixcore.utilities.data_frame_struct.data_frame_struct_type import (
+from helixcore.utilities.data_frame_types.data_frame_types import (
     DataFrameStructType,
     DataFrameStructField,
     DataFrameStringType,

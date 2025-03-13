@@ -6,7 +6,7 @@ import pytest
 from dataclasses import dataclass
 from dataclasses_json import DataClassJsonMixin
 
-from helixcore.utilities.data_frame_struct.data_frame_struct_type import (
+from helixcore.utilities.data_frame_types.data_frame_types import (
     DataFrameStructType,
 )
 from helixcore.utilities.telemetry.telemetry_context import (

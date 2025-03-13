@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 from typing import Dict, Any, List
 
-from helixcore.utilities.data_frame_struct.data_frame_struct_type import (
+from helixcore.utilities.data_frame_types.data_frame_types import (
     DataFrameStructType,
 )
 
