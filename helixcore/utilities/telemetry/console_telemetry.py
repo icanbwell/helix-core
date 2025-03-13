@@ -11,6 +11,7 @@ from typing import (
     AsyncIterator,
     List,
     Union,
+    ClassVar,
 )
 
 from opentelemetry.metrics import Counter, UpDownCounter, Histogram
@@ -29,7 +30,6 @@ from helixcore.utilities.telemetry.telemetry import (
 from helixcore.utilities.telemetry.telemetry_context import (
     TelemetryContext,
 )
-from helixcore.utilities.telemetry.telemetry_factory import TelemetryFactory
 from helixcore.utilities.telemetry.telemetry_parent import (
     TelemetryParent,
 )
@@ -38,8 +38,14 @@ from helixcore.utilities.telemetry.telemetry_span_wrapper import (
 )
 
 
-@TelemetryFactory.register_telemetry(name="console")
 class ConsoleTelemetry(Telemetry):
+    """
+    This is a console telemetry implementation that logs to console
+
+    """
+
+    telemetry_provider: ClassVar[str] = "NullTelemetry"
+
     _CONTEXT_KEY = "current_context"
     _telemetry_history: List[ConsoleTelemetryHistoryItem] = []
     _current_context_variable: ContextVar[Optional[TelemetryParent]] = ContextVar(

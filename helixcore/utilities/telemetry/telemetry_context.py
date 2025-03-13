@@ -3,7 +3,6 @@ from typing import Optional, List
 
 from dataclasses_json import DataClassJsonMixin
 
-from helixcore.utilities.telemetry.telemetry_provider import TelemetryProvider
 from helixcore.utilities.telemetry.telemetry_tracers import (
     TelemetryTracer,
 )
@@ -43,7 +42,7 @@ class TelemetryContext(DataClassJsonMixin):
         :return: a null telemetry context
         """
         return TelemetryContext(
-            telemetry_provider=TelemetryProvider.NULL,
+            telemetry_provider="NullTelemetry",
             trace_id=None,
             span_id=None,
             service_name="",
