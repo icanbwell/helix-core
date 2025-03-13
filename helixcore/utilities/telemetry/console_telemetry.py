@@ -29,6 +29,7 @@ from helixcore.utilities.telemetry.telemetry import (
 from helixcore.utilities.telemetry.telemetry_context import (
     TelemetryContext,
 )
+from helixcore.utilities.telemetry.telemetry_factory import TelemetryFactory
 from helixcore.utilities.telemetry.telemetry_parent import (
     TelemetryParent,
 )
@@ -37,6 +38,7 @@ from helixcore.utilities.telemetry.telemetry_span_wrapper import (
 )
 
 
+@TelemetryFactory.register_telemetry(name="console")
 class ConsoleTelemetry(Telemetry):
     _CONTEXT_KEY = "current_context"
     _telemetry_history: List[ConsoleTelemetryHistoryItem] = []
@@ -53,13 +55,14 @@ class ConsoleTelemetry(Telemetry):
         telemetry_context: TelemetryContext,
         log_level: Optional[Union[int, str]],
     ) -> None:
-        self._telemetry_context: TelemetryContext = telemetry_context
+        super().__init__(
+            telemetry_context=telemetry_context,
+            log_level=log_level,
+        )
         self._logger: Logger = get_logger(
             __name__,
             level=log_level or "INFO",
         )
-        # get_logger sets the log level to the environment variable LOGLEVEL if it exists
-        self._logger.setLevel(log_level or "INFO")
 
     @classmethod
     def add_telemetry_history_item(

@@ -9,9 +9,6 @@ from dataclasses_json import DataClassJsonMixin
 from helixcore.utilities.data_frame_struct.data_frame_struct_type import (
     DataFrameStructType,
 )
-from helixcore.utilities.telemetry.console_telemetry_factory import (
-    ConsoleTelemetryFactory,
-)
 from helixcore.utilities.telemetry.telemetry_context import (
     TelemetryContext,
 )
@@ -29,6 +26,7 @@ from helixcore.utilities.metrics.writer.v2.metrics_writer_parallel import (
 from helixcore.utilities.mysql.my_sql_writer.v2.my_sql_writer import (
     MySqlWriter,
 )
+from helixcore.utilities.telemetry.telemetry_factory import TelemetryFactory
 
 
 @dataclass
@@ -101,9 +99,9 @@ async def metrics_writer(
             max_batch_size=None,
         ),
         logger=mock_logger,
-        telemetry_span_creator=ConsoleTelemetryFactory(
+        telemetry_span_creator=TelemetryFactory(
             telemetry_context=TelemetryContext.get_null_context()
-        ).create_telemetry_span_creator(log_level="INFO"),
+        ).create_telemetry_span_creator(name="console", log_level="INFO"),
     )
     return writer
 
@@ -131,9 +129,9 @@ async def test_context_manager() -> None:
             max_batch_size=None,
         ),
         logger=mock_logger,
-        telemetry_span_creator=ConsoleTelemetryFactory(
+        telemetry_span_creator=TelemetryFactory(
             telemetry_context=TelemetryContext.get_null_context()
-        ).create_telemetry_span_creator(log_level="INFO"),
+        ).create_telemetry_span_creator(name="console", log_level="INFO"),
     ) as writer:
         assert isinstance(writer.my_sql_writer, MySqlWriter)
         assert writer.my_sql_writer.schema_name == "test_schema"
@@ -316,9 +314,9 @@ async def multi_metrics_writer(
             max_batch_size=None,
         ),
         logger=mock_logger,
-        telemetry_span_creator=ConsoleTelemetryFactory(
+        telemetry_span_creator=TelemetryFactory(
             telemetry_context=TelemetryContext.get_null_context()
-        ).create_telemetry_span_creator(log_level="INFO"),
+        ).create_telemetry_span_creator(name="console", log_level="INFO"),
     )
     return writer
 

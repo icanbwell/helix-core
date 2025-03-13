@@ -1,14 +1,12 @@
 from contextlib import contextmanager, asynccontextmanager
 from typing import Optional, Dict, Any, Iterator, AsyncIterator, override
 
-from helixcore.utilities.telemetry.telemetry_context import (
-    TelemetryContext,
-)
 
 from helixcore.utilities.telemetry.null_telemetry_span_wrapper import (
     NullTelemetrySpanWrapper,
 )
 from helixcore.utilities.telemetry.telemetry import Telemetry
+from helixcore.utilities.telemetry.telemetry_factory import TelemetryFactory
 from helixcore.utilities.telemetry.telemetry_parent import (
     TelemetryParent,
 )
@@ -19,14 +17,8 @@ from opentelemetry.metrics import Counter, UpDownCounter, Histogram
 from opentelemetry.metrics import NoOpCounter, NoOpUpDownCounter, NoOpHistogram
 
 
+@TelemetryFactory.register_telemetry(name=None)
 class NullTelemetry(Telemetry):
-    def __init__(
-        self,
-        *,
-        telemetry_context: TelemetryContext,
-    ) -> None:
-        self._telemetry_context: TelemetryContext = telemetry_context
-
     @override
     def track_exception(
         self, exception: Exception, additional_info: Optional[Dict[str, Any]] = None
