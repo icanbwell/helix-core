@@ -1,5 +1,7 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional, Iterable
 import json
+
+from helixcore.logger.yarn_logger import get_logger
 
 
 def combine_bundles(contents: str) -> Dict[str, Any]:
@@ -31,3 +33,64 @@ def combine_bundles(contents: str) -> Dict[str, Any]:
                     bundle["entry"].append(entry)
 
     return bundle
+
+
+def extract_resource_from_json(
+    file_path: str, contents: str, resources_to_extract: Optional[List[str]] = None
+) -> Iterable[Dict[str, Any]]:
+    """
+    Returns a list of rows.  Each row contains file name, resourceType and resource
+    :param file_path: location of file
+    :param contents: a string consisting of a bundle
+    :param resources_to_extract: optional list of resources to extract
+    """
+    logger = get_logger(__name__)
+    file_name: str = file_path.split("/")[-1].replace(".gz", "")
+
+    try:
+        logger.info(
+            f"Extracting resources from {file_path} and using file name {file_name}"
+        )
+
+        bundle: Dict[str, Any] = combine_bundles(contents=contents)
+
+        # now create a row for each entry
+        rows: List[Dict[str, Any]] = [
+            dict(
+                file_name=str(file_name),
+                resourceType=str(entry["resource"]["resourceType"]),
+                resource=json.dumps(entry["resource"]),
+            )
+            for entry in bundle["entry"]
+            if "resource" in entry
+            and "resourceType" in entry["resource"]
+            and entry["resource"]["resourceType"]
+            != "OperationOutcome"  # these are just fluff
+            and (
+                not resources_to_extract
+                or len(resources_to_extract) == 0
+                or entry["resource"]["resourceType"] in resources_to_extract
+            )
+        ]
+
+        logger.info(f"Finished extracting resources from {file_path}")
+        # row = Row(**resources_dict)
+        return rows
+    except Exception as e:
+        logger.exception(f"Error extracting resources from {file_path}: {str(e)}")
+        return [
+            dict(
+                file_name=str(file_name),
+                resourceType="OperationOutcome",
+                resource={
+                    "issue": [
+                        {
+                            "severity": "error",
+                            "code": "invalid",
+                            "details": {"text": f"{str(e)}"},
+                            "diagnostics": f"{file_path}: {contents}",
+                        }
+                    ]
+                },
+            )
+        ]

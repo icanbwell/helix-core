@@ -101,7 +101,7 @@ async def metrics_writer(
         logger=mock_logger,
         telemetry_span_creator=TelemetryFactory(
             telemetry_context=TelemetryContext.get_null_context()
-        ).create_telemetry_span_creator(name="console", log_level="INFO"),
+        ).create_telemetry_span_creator(log_level="INFO"),
     )
     return writer
 
@@ -131,7 +131,7 @@ async def test_context_manager() -> None:
         logger=mock_logger,
         telemetry_span_creator=TelemetryFactory(
             telemetry_context=TelemetryContext.get_null_context()
-        ).create_telemetry_span_creator(name="console", log_level="INFO"),
+        ).create_telemetry_span_creator(log_level="INFO"),
     ) as writer:
         assert isinstance(writer.my_sql_writer, MySqlWriter)
         assert writer.my_sql_writer.schema_name == "test_schema"
@@ -316,7 +316,7 @@ async def multi_metrics_writer(
         logger=mock_logger,
         telemetry_span_creator=TelemetryFactory(
             telemetry_context=TelemetryContext.get_null_context()
-        ).create_telemetry_span_creator(name="console", log_level="INFO"),
+        ).create_telemetry_span_creator(log_level="INFO"),
     )
     return writer
 

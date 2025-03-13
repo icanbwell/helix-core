@@ -22,7 +22,9 @@ class TelemetryFactory:
 
         :param telemetry_context: telemetry context
         """
-        self.telemetry_context = telemetry_context
+        assert telemetry_context is not None
+        assert telemetry_context.telemetry_provider is not None
+        self.telemetry_context: TelemetryContext = telemetry_context
 
     @classmethod
     def register_telemetry_class(
@@ -71,21 +73,21 @@ class TelemetryFactory:
 
         return decorator
 
-    def create(self, *, name: str, log_level: Optional[str | int]) -> Telemetry:
+    def create(self, *, log_level: Optional[str | int]) -> Telemetry:
         """
         Create a telemetry instance
 
         :return: telemetry instance
         """
         assert (
-            name in self._registry
-        ), f"Telemetry {name} not found in registry.  Did you register a class for it using register_telemetry_class()?"
-        return self._registry[name](
+            self.telemetry_context.telemetry_provider in self._registry
+        ), f"Telemetry {self.telemetry_context.telemetry_provider} not found in registry.  Did you register a class for it using register_telemetry_class()?"
+        return self._registry[self.telemetry_context.telemetry_provider](
             telemetry_context=self.telemetry_context, log_level=log_level
         )
 
     def create_telemetry_span_creator(
-        self, *, name: str, log_level: Optional[str | int]
+        self, *, log_level: Optional[str | int]
     ) -> TelemetrySpanCreator:
         """
         Create a telemetry span creator
@@ -93,7 +95,7 @@ class TelemetryFactory:
         :return: telemetry span creator
         """
         return TelemetrySpanCreator(
-            telemetry=self.create(name=name, log_level=log_level),
+            telemetry=self.create(log_level=log_level),
             telemetry_context=self.telemetry_context,
         )
 
