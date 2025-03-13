@@ -24,7 +24,17 @@ jobs:
       run: |
         echo "${{ github.event.release.tag_name }}" > VERSION
 
-      # setup and install everything and run tests
+    - name: Determine Release Type
+      id: release-type
+      run: |
+        if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+          echo "Publishing pre-release version"
+          echo "is_prerelease=true" >> $GITHUB_OUTPUT
+        else
+          echo "Publishing stable release"
+          echo "is_prerelease=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: build docker
       run: docker compose build --parallel
 
@@ -35,10 +45,14 @@ jobs:
       run: |
         docker compose run --rm -u root -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} dev sh -c "
           chmod -R 777 /usr/src/helixcore &&
-          pip install --upgrade pip && 
+          pip install --upgrade pip &&
           pip install twine wheel &&
           python setup.py sdist bdist_wheel &&
-          twine upload dist/*
+          if [[ '${{ steps.release-type.outputs.is_prerelease }}' == 'true' ]]; then
+            twine upload --pre dist/*
+          else
+            twine upload dist/*
+          fi
         "
 
     - name: list files in dist
