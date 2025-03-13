@@ -79,7 +79,7 @@ class TelemetryFactory:
         """
         assert (
             name in self._registry
-        ), f"Telemetry {name} not found in registry.  Did you register a class for it?"
+        ), f"Telemetry {name} not found in registry.  Did you register a class for it using register_telemetry_class()?"
         return self._registry[name](
             telemetry_context=self.telemetry_context, log_level=log_level
         )
