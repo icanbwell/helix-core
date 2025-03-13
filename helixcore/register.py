@@ -9,8 +9,8 @@ def register() -> None:
     """
 
     TelemetryFactory.register_telemetry_class(
-        name="null", telemetry_class=NullTelemetry
+        name=NullTelemetry.telemetry_provider, telemetry_class=NullTelemetry
     )
     TelemetryFactory.register_telemetry_class(
-        name="class", telemetry_class=ConsoleTelemetry
+        name=ConsoleTelemetry.telemetry_provider, telemetry_class=ConsoleTelemetry
     )
