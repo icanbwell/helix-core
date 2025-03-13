@@ -33,7 +33,7 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI }}
       run: |
-        docker compose run --rm -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} dev sh -c "
+        docker compose run --rm -u root -e TWINE_USERNAME=${TWINE_USERNAME} -e TWINE_PASSWORD=${TWINE_PASSWORD} dev sh -c "
           chmod -R 777 /usr/src/helixcore &&
           pip install --upgrade pip && 
           pip install twine wheel &&
