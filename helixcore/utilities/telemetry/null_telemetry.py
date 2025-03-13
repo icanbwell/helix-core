@@ -17,7 +17,7 @@ from opentelemetry.metrics import Counter, UpDownCounter, Histogram
 from opentelemetry.metrics import NoOpCounter, NoOpUpDownCounter, NoOpHistogram
 
 
-@TelemetryFactory.register_telemetry(name=None)
+@TelemetryFactory.register_telemetry(name="null")
 class NullTelemetry(Telemetry):
     @override
     def track_exception(
