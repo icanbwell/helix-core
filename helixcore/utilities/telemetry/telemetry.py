@@ -114,12 +114,16 @@ class Telemetry(ABC):
     async def flush_async(self) -> None: ...
 
     @abstractmethod
+    async def shutdown_async(self) -> None: ...
+
+    @abstractmethod
     def get_counter(
         self,
         *,
         name: str,
         unit: str,
         description: str,
+        attributes: Optional[Dict[str, Any]] = None,
     ) -> Counter:
         """
         Get a counter metric
@@ -127,6 +131,7 @@ class Telemetry(ABC):
         :param name: Name of the counter
         :param unit: Unit of the counter
         :param description: Description
+        :param attributes: Optional attributes
         :return: The Counter metric
         """
         ...
@@ -138,6 +143,7 @@ class Telemetry(ABC):
         name: str,
         unit: str,
         description: str,
+        attributes: Optional[Dict[str, Any]] = None,
     ) -> UpDownCounter:
         """
         Get a up_down_counter metric
@@ -145,17 +151,19 @@ class Telemetry(ABC):
         :param name: Name of the up_down_counter
         :param unit: Unit of the up_down_counter
         :param description: Description
+        :param attributes: Optional attributes
         :return: The Counter metric
         """
         ...
 
     @abstractmethod
-    def get_histograms(
+    def get_histogram(
         self,
         *,
         name: str,
         unit: str,
         description: str,
+        attributes: Optional[Dict[str, Any]] = None,
     ) -> Histogram:
         """
         Get a histograms metric
@@ -163,6 +171,7 @@ class Telemetry(ABC):
         :param name: Name of the histograms
         :param unit: Unit of the histograms
         :param description: Description
+        :param attributes: Optional attributes
         :return: The Counter metric
         """
         ...

@@ -79,6 +79,7 @@ class NullTelemetry(Telemetry):
         name: str,
         unit: str,
         description: str,
+        attributes: Optional[Dict[str, Any]] = None,
     ) -> Counter:
         """
         Get a counter metric
@@ -86,6 +87,7 @@ class NullTelemetry(Telemetry):
         :param name: Name of the counter
         :param unit: Unit of the counter
         :param description: Description
+        :param attributes: Optional attributes
         :return: The Counter metric
         """
         return NoOpCounter(
@@ -101,6 +103,7 @@ class NullTelemetry(Telemetry):
         name: str,
         unit: str,
         description: str,
+        attributes: Optional[Dict[str, Any]] = None,
     ) -> UpDownCounter:
         """
         Get a up_down_counter metric
@@ -108,6 +111,7 @@ class NullTelemetry(Telemetry):
         :param name: Name of the up_down_counter
         :param unit: Unit of the up_down_counter
         :param description: Description
+        :param attributes: Optional attributes
         :return: The Counter metric
         """
 
@@ -118,12 +122,13 @@ class NullTelemetry(Telemetry):
         )
 
     @override
-    def get_histograms(
+    def get_histogram(
         self,
         *,
         name: str,
         unit: str,
         description: str,
+        attributes: Optional[Dict[str, Any]] = None,
     ) -> Histogram:
         """
         Get a histograms metric
@@ -131,6 +136,7 @@ class NullTelemetry(Telemetry):
         :param name: Name of the histograms
         :param unit: Unit of the histograms
         :param description: Description
+        :param attributes: Optional attributes
         :return: The Counter metric
         """
         return NoOpHistogram(
@@ -138,3 +144,6 @@ class NullTelemetry(Telemetry):
             unit=unit,
             description=description,
         )
+
+    async def shutdown_async(self) -> None:
+        pass
