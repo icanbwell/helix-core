@@ -73,3 +73,8 @@ help: ## Show this help.
 pipenv-setup:devdocker ## Run pipenv-setup to update setup.py with latest dependencies
 	docker compose run --rm dev sh -c "pipenv run pipenv install --skip-lock --categories \"pipenvsetup\" && pipenv run pipenv-setup sync --pipfile" && \
 	make run-pre-commit
+
+.PHONY:show_dependency_graph
+show_dependency_graph:
+	docker compose run --rm --name spark_pipeline_framework dev sh -c "pipenv install --skip-lock -d --system && pip install pipdeptree && pipdeptree --reverse"
+

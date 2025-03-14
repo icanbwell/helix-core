@@ -1,6 +1,5 @@
 from abc import abstractmethod, ABC
 from contextlib import asynccontextmanager, contextmanager
-from opentelemetry.metrics import Counter, UpDownCounter, Histogram
 
 from typing import Optional, Dict, Any, AsyncIterator, Iterator, Union
 
@@ -124,7 +123,7 @@ class Telemetry(ABC):
         unit: str,
         description: str,
         attributes: Optional[Dict[str, Any]] = None,
-    ) -> Counter:
+    ) -> Any:
         """
         Get a counter metric
 
@@ -144,7 +143,7 @@ class Telemetry(ABC):
         unit: str,
         description: str,
         attributes: Optional[Dict[str, Any]] = None,
-    ) -> UpDownCounter:
+    ) -> Any:
         """
         Get a up_down_counter metric
 
@@ -152,7 +151,7 @@ class Telemetry(ABC):
         :param unit: Unit of the up_down_counter
         :param description: Description
         :param attributes: Optional attributes
-        :return: The Counter metric
+        :return: The UpDownCounter metric
         """
         ...
 
@@ -164,7 +163,7 @@ class Telemetry(ABC):
         unit: str,
         description: str,
         attributes: Optional[Dict[str, Any]] = None,
-    ) -> Histogram:
+    ) -> Any:
         """
         Get a histograms metric
 

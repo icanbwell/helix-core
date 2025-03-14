@@ -21,8 +21,6 @@ boto3 = ">=1.34.140"
 "helix.fhir.client.sdk" = ">=3.0.27"
 # furl is needed for parsing URLs
 furl = ">=2.1.3"
-# mlflow is needed for tracking experiments in MLFlow
-mlflow-skinny = ">=2.17.2"
 # sqlparse is needed for parsing SQL to prevent SQL injections
 sqlparse = ">=0.5.3"
 # pymysql is needed for connecting to MySQL
@@ -33,6 +31,11 @@ aiomysql=">=0.2.0"
 aiohttp=">=3.11.13"
 # structlog is needed for structured logging
 structlog = ">=23.1.0"
+# ====== For OpenTelemetry ======
+opentelemetry-api = ">=1.30.0"
+opentelemetry-sdk = ">=1.30.0"
+opentelemetry-exporter-otlp = ">=1.30.0"
+# ====== End OpenTelemetry ======
 
 [dev-packages]
 setuptools=">=60.9.3"
