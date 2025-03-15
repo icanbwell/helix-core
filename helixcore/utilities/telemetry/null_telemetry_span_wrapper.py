@@ -2,6 +2,7 @@ from typing import (
     Optional,
     Dict,
     Any,
+    override,
 )
 
 from helixcore.utilities.telemetry.telemetry_context import (
@@ -17,6 +18,7 @@ from helixcore.utilities.telemetry.telemetry_span_wrapper import (
 
 
 class NullTelemetrySpanWrapper(TelemetrySpanWrapper):
+    @override
     @property
     def span_id(self) -> Optional[str]:
         return (
@@ -25,6 +27,7 @@ class NullTelemetrySpanWrapper(TelemetrySpanWrapper):
             else None
         )
 
+    @override
     @property
     def trace_id(self) -> Optional[str]:
         return (
@@ -47,3 +50,7 @@ class NullTelemetrySpanWrapper(TelemetrySpanWrapper):
             telemetry_context=telemetry_context,
             telemetry_parent=telemetry_parent,
         )
+
+    @override
+    def set_attributes(self, attributes: Dict[str, Any]) -> None:
+        pass
