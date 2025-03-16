@@ -3,6 +3,15 @@ from contextlib import asynccontextmanager, contextmanager
 
 from typing import Optional, Dict, Any, AsyncIterator, Iterator, Union
 
+from helixcore.utilities.telemetry.metrics.telemetry_counter import (
+    TelemetryCounter,
+)
+from helixcore.utilities.telemetry.metrics.telemetry_histogram_counter import (
+    TelemetryHistogram,
+)
+from helixcore.utilities.telemetry.metrics.telemetry_up_down_counter import (
+    TelemetryUpDownCounter,
+)
 from helixcore.utilities.telemetry.telemetry_context import TelemetryContext
 from helixcore.utilities.telemetry.telemetry_parent import (
     TelemetryParent,
@@ -123,7 +132,7 @@ class Telemetry(ABC):
         unit: str,
         description: str,
         attributes: Optional[Dict[str, Any]] = None,
-    ) -> Any:
+    ) -> TelemetryCounter:
         """
         Get a counter metric
 
@@ -143,15 +152,15 @@ class Telemetry(ABC):
         unit: str,
         description: str,
         attributes: Optional[Dict[str, Any]] = None,
-    ) -> Any:
+    ) -> TelemetryUpDownCounter:
         """
-        Get a up_down_counter metric
+        Get an up_down_counter metric
 
         :param name: Name of the up_down_counter
         :param unit: Unit of the up_down_counter
         :param description: Description
         :param attributes: Optional attributes
-        :return: The UpDownCounter metric
+        :return: The Counter metric
         """
         ...
 
@@ -163,7 +172,7 @@ class Telemetry(ABC):
         unit: str,
         description: str,
         attributes: Optional[Dict[str, Any]] = None,
-    ) -> Any:
+    ) -> TelemetryHistogram:
         """
         Get a histograms metric
 

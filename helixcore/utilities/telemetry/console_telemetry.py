@@ -14,7 +14,6 @@ from typing import (
     ClassVar,
 )
 
-from opentelemetry.metrics import Counter, UpDownCounter, Histogram
 from opentelemetry.metrics import NoOpCounter, NoOpUpDownCounter, NoOpHistogram
 
 from helixcore.logger.yarn_logger import get_logger
@@ -23,6 +22,15 @@ from helixcore.utilities.telemetry.console_telemetry_history_item import (
 )
 from helixcore.utilities.telemetry.console_telemetry_span_wrapper import (
     ConsoleTelemetrySpanWrapper,
+)
+from helixcore.utilities.telemetry.metrics.telemetry_counter import (
+    TelemetryCounter,
+)
+from helixcore.utilities.telemetry.metrics.telemetry_histogram_counter import (
+    TelemetryHistogram,
+)
+from helixcore.utilities.telemetry.metrics.telemetry_up_down_counter import (
+    TelemetryUpDownCounter,
 )
 from helixcore.utilities.telemetry.telemetry import (
     Telemetry,
@@ -205,7 +213,7 @@ class ConsoleTelemetry(Telemetry):
         unit: str,
         description: str,
         attributes: Optional[Dict[str, Any]] = None,
-    ) -> Counter:
+    ) -> TelemetryCounter:
         """
         Get a counter metric
 
@@ -215,10 +223,13 @@ class ConsoleTelemetry(Telemetry):
         :param attributes: Optional attributes
         :return: The Counter metric
         """
-        return NoOpCounter(
-            name=name,
-            unit=unit,
-            description=description,
+        return TelemetryCounter(
+            counter=NoOpCounter(
+                name=name,
+                unit=unit,
+                description=description,
+            ),
+            attributes=None,
         )
 
     @override
@@ -229,9 +240,9 @@ class ConsoleTelemetry(Telemetry):
         unit: str,
         description: str,
         attributes: Optional[Dict[str, Any]] = None,
-    ) -> UpDownCounter:
+    ) -> TelemetryUpDownCounter:
         """
-        Get a up_down_counter metric
+        Get an up_down_counter metric
 
         :param name: Name of the up_down_counter
         :param unit: Unit of the up_down_counter
@@ -239,11 +250,13 @@ class ConsoleTelemetry(Telemetry):
         :param attributes: Optional attributes
         :return: The Counter metric
         """
-
-        return NoOpUpDownCounter(
-            name=name,
-            unit=unit,
-            description=description,
+        return TelemetryUpDownCounter(
+            counter=NoOpUpDownCounter(
+                name=name,
+                unit=unit,
+                description=description,
+            ),
+            attributes=None,
         )
 
     @override
@@ -254,7 +267,7 @@ class ConsoleTelemetry(Telemetry):
         unit: str,
         description: str,
         attributes: Optional[Dict[str, Any]] = None,
-    ) -> Histogram:
+    ) -> TelemetryHistogram:
         """
         Get a histograms metric
 
@@ -264,10 +277,13 @@ class ConsoleTelemetry(Telemetry):
         :param attributes: Optional attributes
         :return: The Counter metric
         """
-        return NoOpHistogram(
-            name=name,
-            unit=unit,
-            description=description,
+        return TelemetryHistogram(
+            histogram=NoOpHistogram(
+                name=name,
+                unit=unit,
+                description=description,
+            ),
+            attributes=None,
         )
 
     async def shutdown_async(self) -> None:
