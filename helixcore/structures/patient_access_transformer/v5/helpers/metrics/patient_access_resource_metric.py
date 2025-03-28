@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, List, cast
+from typing import Optional, List, cast, override
 
 from dataclasses_json import DataClassJsonMixin
 from fhir.resources.R4B.bundle import Bundle
@@ -104,8 +104,10 @@ class PatientAccessResourceMetric(DataClassJsonMixin, BaseMetric):
     def spark_schema(self) -> DataFrameStructType:
         return self.get_schema()
 
-    def get_create_ddl(self, db_schema_name: str, db_table_name: str) -> str:
-        return self.get_create_statement_ddl(
+    @classmethod
+    @override
+    def get_create_ddl(cls, db_schema_name: str, db_table_name: str) -> str:
+        return cls.get_create_statement_ddl(
             db_schema_name=db_schema_name, db_table_name=db_table_name
         )
 

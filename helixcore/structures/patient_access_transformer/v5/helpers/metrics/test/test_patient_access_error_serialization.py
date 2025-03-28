@@ -1,11 +1,10 @@
 import json
 import datetime
 
+from helixtelemetry.telemetry.context.telemetry_context import TelemetryContext
+
 from helixcore.utilities.async_pandas_udf.v1.async_pandas_udf_parameters import (
     AsyncPandasUdfParameters,
-)
-from helixcore.utilities.telemetry.telemetry_context import (
-    TelemetryContext,
 )
 
 from helixcore.structures.patient_access_transformer.v5.helpers.metrics.patient_access_error import (
@@ -45,7 +44,6 @@ def test_patient_access_error_serialization() -> None:
         current_date_time=current_date_time,
         flow_name="zebra",
         page_size_for_person_clinical_data_pipeline=1000,
-        telemetry_context=TelemetryContext.get_null_context(),
         telemetry_parent=None,
         log_level=None,
     )

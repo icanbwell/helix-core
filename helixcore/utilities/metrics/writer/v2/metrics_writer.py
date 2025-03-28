@@ -2,20 +2,24 @@ from logging import Logger
 from types import TracebackType
 from typing import Any, Dict, List, Type, Sequence, Optional, override
 
-from helixtelemetry.telemetry.spans.telemetry_span_creator import TelemetrySpanCreator
-
-from helixcore.utilities.metrics.base_metrics import (
-    BaseMetric,
+from helixtelemetry.telemetry.metrics.telemetry_counter import (
+    TelemetryCounter,
 )
+from helixtelemetry.telemetry.structures.telemetry_parent import (
+    TelemetryParent,
+)
+from helixtelemetry.telemetry.spans.telemetry_span_creator import (
+    TelemetrySpanCreator,
+)
+
+from helixcore.utilities.metrics.base_metrics import BaseMetric
 from helixcore.utilities.metrics.writer.base_metrics_writer_async import (
     BaseMetricsWriterAsync,
 )
 from helixcore.utilities.metrics.writer.base_metrics_writer_parameters import (
     BaseMetricsWriterParameters,
 )
-from helixcore.utilities.mysql.my_sql_writer.v2.my_sql_writer import (
-    MySqlWriter,
-)
+from helixcore.utilities.mysql.my_sql_writer.v2.my_sql_writer import MySqlWriter
 
 
 class MetricsWriter(BaseMetricsWriterAsync):
@@ -54,15 +58,16 @@ class MetricsWriter(BaseMetricsWriterAsync):
         if self.my_sql_writer is not None:
             await self.my_sql_writer.close_async()
 
-    def _get_table_for_metric(self, *, metric: BaseMetric) -> Optional[str]:
+    def _get_table_for_metric_name(self, *, metric_name: str) -> Optional[str]:
         """
         Gets the table for this metrics from the mapping
 
-        :param metric: metric to get the table for
+        :param metric_name: metric name to get the table for
         :return: table name
         """
-        if metric.get_name() in self.metric_table_map:
-            return self.metric_table_map[metric.get_name()]
+        assert metric_name
+        if metric_name in self.metric_table_map:
+            return self.metric_table_map[metric_name]
         return None
 
     def _has_table_been_created_for_metric(self, *, metric: BaseMetric) -> bool:
@@ -77,29 +82,40 @@ class MetricsWriter(BaseMetricsWriterAsync):
         return False
 
     @override
-    async def create_table_if_not_exists_async(self, *, metric: BaseMetric) -> None:
+    async def create_table_if_not_exists_async(
+        self,
+        *,
+        metric_type: Type[BaseMetric],
+        telemetry_parent: Optional[TelemetryParent],
+    ) -> None:
         """
         Creates the table if it does not exist
 
-        :param metric: metric to create the table for
+        :param metric_type: metric type to create the table for
+        :param telemetry_parent: telemetry parent
 
         :return: None
         """
-        async with self.telemetry_span_creator.create_telemetry_span(
-            name="create_table_if_not_exists_async",
-            attributes={"metric": metric.get_name()},
+        assert metric_type, "metric type should not be None"
+
+        metric_name: str = metric_type.get_name()
+
+        assert (
+            self.my_sql_writer
+        ), "my_sql_writer should not be None.  Use this class as a context manager"
+
+        table_name: Optional[str] = self._get_table_for_metric_name(
+            metric_name=metric_name
+        )
+        if not table_name:
+            return
+
+        async with self.telemetry_span_creator.create_telemetry_span_async(
+            name=self.create_table_if_not_exists_async.__qualname__,
+            attributes={TelemetryAttributes.METRIC_TYPE: metric_name},
+            telemetry_parent=telemetry_parent,
         ):
-            assert metric, "metric should not be None"
-
-            assert (
-                self.my_sql_writer
-            ), "my_sql_writer should not be None.  Use this class as a context manager"
-
-            table_name: Optional[str] = self._get_table_for_metric(metric=metric)
-            if not table_name:
-                return
-
-            create_ddl: str = metric.get_create_ddl(
+            create_ddl: str = metric_type.get_create_ddl(
                 db_schema_name=self.schema_name, db_table_name=table_name
             )
             assert create_ddl, "create_ddl should not be None"
@@ -111,28 +127,35 @@ class MetricsWriter(BaseMetricsWriterAsync):
             await self.my_sql_writer.run_query_async(
                 query=create_ddl, logger=self.logger
             )
-            self.tables_created_for_metric[metric.get_name()] = True
+            self.tables_created_for_metric[metric_name] = True
 
     @override
     async def write_single_metric_to_table_async(
-        self, *, metric: BaseMetric
+        self, *, metric: BaseMetric, telemetry_parent: Optional[TelemetryParent]
     ) -> Optional[int]:
         """
         Writes a single metric to the database
 
         :param metric: metric to write
+        :param telemetry_parent: telemetry parent
         :return: number of rows affected
         """
-        return await self.write_metrics_to_table_async(metrics=[metric])
+        return await self.write_metrics_to_table_async(
+            metrics=[metric], telemetry_parent=telemetry_parent
+        )
 
     @override
     async def write_metrics_to_table_async(
-        self, *, metrics: Sequence[BaseMetric]
+        self,
+        *,
+        metrics: Sequence[BaseMetric],
+        telemetry_parent: Optional[TelemetryParent],
     ) -> Optional[int]:
         """
         Writes the data to the table
 
         :param metrics: list of metrics to write
+        :param telemetry_parent: telemetry parent
         :return: number of rows affected
         """
         assert metrics is not None, "metrics should not be None"
@@ -147,26 +170,53 @@ class MetricsWriter(BaseMetricsWriterAsync):
         first_metric: BaseMetric = next(iter(metrics))
         assert first_metric, "first_metric should not be None"
 
-        async with self.telemetry_span_creator.create_telemetry_span(
-            name="write_metrics_to_table_async",
+        metric_type = first_metric.get_name()
+        async with self.telemetry_span_creator.create_telemetry_span_async(
+            name=self.write_metrics_to_table_async.__qualname__,
             attributes={
-                "metric": first_metric.get_name(),
-                "number_of_metrics": len(metrics),
+                TelemetryAttributes.METRIC_TYPE: metric_type,
+                TelemetryAttributes.METRIC_COUNT: len(metrics),
             },
+            telemetry_parent=telemetry_parent,
         ):
-
+            metrics_written_counter: TelemetryCounter = (
+                self.telemetry_span_creator.get_telemetry_counter(
+                    name=TelemetryMetricNames.PROA_METRIC_WRITTEN_COUNT,
+                    unit="1",
+                    description="Number of metrics written",
+                    telemetry_parent=telemetry_parent,
+                    attributes={
+                        TelemetryAttributes.SOURCE: self.__class__.__qualname__
+                    },
+                )
+            )
             columns: List[str] = first_metric.columns
 
             assert columns, "columns should not be None"
-            table_name: Optional[str] = self._get_table_for_metric(metric=first_metric)
+            table_name: Optional[str] = self._get_table_for_metric_name(
+                metric_name=metric_type
+            )
             if not table_name:
                 return 0
 
             assert len(columns) > 0, "columns should not be empty"
-            if not self._has_table_been_created_for_metric(metric=first_metric):
-                await self.create_table_if_not_exists_async(metric=first_metric)
+
+            if self.parameters.create_metrics_table_if_not_exists:
+                if not self._has_table_been_created_for_metric(metric=first_metric):
+                    await self.create_table_if_not_exists_async(
+                        metric_type=type(first_metric),
+                        telemetry_parent=telemetry_parent,
+                    )
 
             data: List[Dict[str, Any]] = [metric.to_dict() for metric in metrics]
+
+            metrics_written_counter.add(
+                amount=len(metrics),
+                attributes={
+                    TelemetryAttributes.METRIC_TYPE: metric_type,
+                    TelemetryAttributes.METRIC_WRITER: self.__class__.__name__,
+                },
+            )
 
             rows_affected: Optional[int] = (
                 await self.my_sql_writer.write_to_table_async(
@@ -184,23 +234,28 @@ class MetricsWriter(BaseMetricsWriterAsync):
 
     @override
     async def read_metrics_from_table_async(
-        self, metric: BaseMetric
+        self,
+        *,
+        metric: BaseMetric,
+        telemetry_parent: Optional[TelemetryParent],
     ) -> List[Dict[str, Any]]:
         """
         Reads the data from the table
 
         :param metric:
+        :param telemetry_parent: telemetry parent
         :return: data read from the table
         """
-        async with self.telemetry_span_creator.create_telemetry_span(
-            name="read_metrics_from_table_async",
-            attributes={"metric": metric.get_name()},
+        async with self.telemetry_span_creator.create_telemetry_span_async(
+            name=self.read_metrics_from_table_async.__qualname__,
+            attributes={TelemetryAttributes.METRIC_TYPE: metric.get_name()},
+            telemetry_parent=telemetry_parent,
         ):
             assert (
                 self.my_sql_writer
             ), "my_sql_writer should not be None.  Use this class as a context manager"
 
-            table_name = self._get_table_for_metric(metric=metric)
+            table_name = self._get_table_for_metric_name(metric_name=metric.get_name())
             if not table_name:
                 return []
 

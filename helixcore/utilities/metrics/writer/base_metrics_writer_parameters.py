@@ -22,3 +22,6 @@ class BaseMetricsWriterParameters(DataClassJsonMixin):
 
     max_batch_size: Optional[int]
     """ maximum number of rows to write in a single batch to metrics database """
+
+    create_metrics_table_if_not_exists: Optional[bool]
+    """ Whether to check and create the metrics tables if they don't exist """

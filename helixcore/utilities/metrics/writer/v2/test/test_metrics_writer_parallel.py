@@ -1,20 +1,20 @@
 from logging import Logger
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, override
 from unittest.mock import Mock, AsyncMock, patch
 
 import pytest
 from dataclasses import dataclass
 from dataclasses_json import DataClassJsonMixin
-from helixtelemetry.telemetry.context.telemetry_context import TelemetryContext
-from helixtelemetry.telemetry.factory.telemetry_factory import TelemetryFactory
 
-from helixcore.utilities.data_frame_types.data_frame_types import (
-    DataFrameStructType,
+from helixtelemetry.telemetry.factory.telemetry_factory import (
+    TelemetryFactory,
+)
+from helixtelemetry.telemetry.structures.telemetry_parent import (
+    TelemetryParent,
 )
 
-from helixcore.utilities.async_safe_buffer.v1.async_safe_buffer import (
-    AsyncSafeBuffer,
-)
+from helixcore.utilities.async_safe_buffer.v1.async_safe_buffer import AsyncSafeBuffer
+from helixcore.utilities.data_frame_types.data_frame_types import DataFrameStructType
 from helixcore.utilities.metrics.base_metrics import BaseMetric
 from helixcore.utilities.metrics.writer.base_metrics_writer_parameters import (
     BaseMetricsWriterParameters,
@@ -22,9 +22,7 @@ from helixcore.utilities.metrics.writer.base_metrics_writer_parameters import (
 from helixcore.utilities.metrics.writer.v2.metrics_writer_parallel import (
     MetricsWriterParallel,
 )
-from helixcore.utilities.mysql.my_sql_writer.v2.my_sql_writer import (
-    MySqlWriter,
-)
+from helixcore.utilities.mysql.my_sql_writer.v2.my_sql_writer import MySqlWriter
 
 
 @dataclass
@@ -40,7 +38,9 @@ class MockMetricA(DataClassJsonMixin, BaseMetric):
     def spark_schema(self) -> DataFrameStructType:
         return DataFrameStructType()
 
-    def get_create_ddl(self, db_schema_name: str, db_table_name: str) -> str:
+    @classmethod
+    @override
+    def get_create_ddl(cls, db_schema_name: str, db_table_name: str) -> str:
         return f"CREATE TABLE {db_schema_name}.{db_table_name} (col1 INT, col2 VARCHAR(255))"
 
     @property
@@ -61,7 +61,9 @@ class MockMetricB(DataClassJsonMixin, BaseMetric):
     def spark_schema(self) -> DataFrameStructType:
         return DataFrameStructType()
 
-    def get_create_ddl(self, db_schema_name: str, db_table_name: str) -> str:
+    @classmethod
+    @override
+    def get_create_ddl(cls, db_schema_name: str, db_table_name: str) -> str:
         return f"CREATE TABLE {db_schema_name}.{db_table_name} (col3 INT, col4 VARCHAR(255))"
 
     @property
@@ -95,10 +97,11 @@ async def metrics_writer(
             metric_table_map=metric_table_map,
             buffer_length=2,
             max_batch_size=None,
+            create_metrics_table_if_not_exists=True,
         ),
         logger=mock_logger,
         telemetry_span_creator=TelemetryFactory(
-            telemetry_context=TelemetryContext.get_null_context()
+            telemetry_parent=TelemetryParent.get_null_parent()
         ).create_telemetry_span_creator(log_level="INFO"),
     )
     return writer
@@ -125,10 +128,11 @@ async def test_context_manager() -> None:
             metric_table_map=metric_table_map,
             buffer_length=None,
             max_batch_size=None,
+            create_metrics_table_if_not_exists=True,
         ),
         logger=mock_logger,
         telemetry_span_creator=TelemetryFactory(
-            telemetry_context=TelemetryContext.get_null_context()
+            telemetry_parent=TelemetryParent.get_null_parent()
         ).create_telemetry_span_creator(log_level="INFO"),
     ) as writer:
         assert isinstance(writer.my_sql_writer, MySqlWriter)
@@ -138,7 +142,9 @@ async def test_context_manager() -> None:
 @pytest.mark.asyncio
 async def test_get_table_for_metric(metrics_writer: MetricsWriterParallel) -> None:
     metric = MockMetricA(col1=1, col2="test")
-    table_name = metrics_writer._get_table_for_metric(metric=metric)
+    table_name = metrics_writer._get_table_for_metric_name(
+        metric_name=metric.get_name()
+    )
     assert table_name == "test_table"
 
 
@@ -151,7 +157,9 @@ async def test_create_table_if_not_exists_async(
     # Mock MySqlWriter
     metrics_writer.my_sql_writer = AsyncMock(spec=MySqlWriter)
 
-    await metrics_writer.create_table_if_not_exists_async(metric=metric)
+    await metrics_writer.create_table_if_not_exists_async(
+        metric_type=type(metric), telemetry_parent=None
+    )
 
     metrics_writer.my_sql_writer.create_database_async.assert_called_once()
     metrics_writer.my_sql_writer.run_query_async.assert_called_once()
@@ -166,10 +174,12 @@ async def test_write_single_metric_to_table_async(
 
     with patch.object(metrics_writer, "write_metrics_to_table_async") as mock_write:
         mock_write.return_value = 1
-        result = await metrics_writer.write_single_metric_to_table_async(metric=metric)
+        result = await metrics_writer.write_single_metric_to_table_async(
+            metric=metric, telemetry_parent=None
+        )
 
         assert result == 1
-        mock_write.assert_called_once_with(metrics=[metric])
+        mock_write.assert_called_once_with(metrics=[metric], telemetry_parent=None)
 
 
 @pytest.mark.asyncio
@@ -196,7 +206,9 @@ async def test_write_metrics_to_table_async_with_buffer(
     metrics_writer.my_sql_writer = AsyncMock(spec=MySqlWriter)
 
     # Add metrics below buffer length
-    result = await metrics_writer.write_metrics_to_table_async(metrics=[metric])
+    result = await metrics_writer.write_metrics_to_table_async(
+        metrics=[metric], telemetry_parent=None
+    )
     write_to_table_async_calls = (
         metrics_writer.my_sql_writer.write_to_table_async.call_args_list
     )
@@ -211,8 +223,10 @@ async def test_write_metrics_to_table_async_with_buffer(
     assert len(write_to_table_async_calls) == 0
 
     # Add more metrics to exceed buffer length
-    await metrics_writer.write_metrics_to_table_async(metrics=[metric, metric])
-    await metrics_writer.flush_async()
+    await metrics_writer.write_metrics_to_table_async(
+        metrics=[metric, metric], telemetry_parent=None
+    )
+    await metrics_writer.flush_async(telemetry_parent=None)
     # Assert buffer is now empty
     assert (
         await metrics_writer.get_count_of_metrics_by_type_in_buffer_async(
@@ -248,7 +262,9 @@ async def test_read_metrics_from_table_async(
     metrics_writer.my_sql_writer = AsyncMock(spec=MySqlWriter)
     metrics_writer.my_sql_writer.read_from_table_async.return_value = expected_data
 
-    result = await metrics_writer.read_metrics_from_table_async(metric)
+    result = await metrics_writer.read_metrics_from_table_async(
+        metric=metric, telemetry_parent=None
+    )
 
     assert result == expected_data
     metrics_writer.my_sql_writer.read_from_table_async.assert_called_once_with(
@@ -272,7 +288,7 @@ async def test_flush_async(metrics_writer: MetricsWriterParallel) -> None:
     )
 
     # Flush buffer and retrieve mocked writing details
-    await metrics_writer.flush_async()
+    await metrics_writer.flush_async(telemetry_parent=None)
     write_to_table_async_calls = (
         metrics_writer.my_sql_writer.write_to_table_async.call_args_list
     )
@@ -310,10 +326,11 @@ async def multi_metrics_writer(
             metric_table_map=multi_metric_table_map,
             buffer_length=3,
             max_batch_size=None,
+            create_metrics_table_if_not_exists=True,
         ),
         logger=mock_logger,
         telemetry_span_creator=TelemetryFactory(
-            telemetry_context=TelemetryContext.get_null_context()
+            telemetry_parent=TelemetryParent.get_null_parent()
         ).create_telemetry_span_creator(log_level="INFO"),
     )
     return writer
@@ -338,10 +355,10 @@ async def test_multiple_metric_types_writing(
 
     # Add metrics to buffer
     await multi_metrics_writer.write_metrics_to_table_async(
-        metrics=[metric_a1, metric_a2]
+        metrics=[metric_a1, metric_a2], telemetry_parent=None
     )
     await multi_metrics_writer.write_metrics_to_table_async(
-        metrics=[metric_b1, metric_b2]
+        metrics=[metric_b1, metric_b2], telemetry_parent=None
     )
 
     # Verify buffer contents
@@ -361,8 +378,10 @@ async def test_multiple_metric_types_writing(
 
     # Add one more metric to trigger write (buffer_length=5)
     additional_metric = MockMetricA(col1=3, col2="test3")
-    await multi_metrics_writer.write_metrics_to_table_async(metrics=[additional_metric])
-    await multi_metrics_writer.flush_async()
+    await multi_metrics_writer.write_metrics_to_table_async(
+        metrics=[additional_metric], telemetry_parent=None
+    )
+    await multi_metrics_writer.flush_async(telemetry_parent=None)
 
     # Verify that write_to_table_async was called for both metric types
     calls = multi_metrics_writer.my_sql_writer.write_to_table_async.call_args_list
@@ -394,8 +413,12 @@ async def test_multiple_metric_types_table_creation(
     multi_metrics_writer.my_sql_writer = AsyncMock(spec=MySqlWriter)
 
     # Create tables for both metric types
-    await multi_metrics_writer.create_table_if_not_exists_async(metric=metric_a)
-    await multi_metrics_writer.create_table_if_not_exists_async(metric=metric_b)
+    await multi_metrics_writer.create_table_if_not_exists_async(
+        metric_type=type(metric_a), telemetry_parent=None
+    )
+    await multi_metrics_writer.create_table_if_not_exists_async(
+        metric_type=type(metric_b), telemetry_parent=None
+    )
 
     # Verify that create_database_async was called only once
     assert multi_metrics_writer.my_sql_writer.create_database_async.call_count == 1
@@ -424,8 +447,12 @@ async def test_multiple_metric_types_flush(
     multi_metrics_writer.my_sql_writer.write_to_table_async.return_value = 1
 
     # Add metrics to buffer
-    await multi_metrics_writer.write_metrics_to_table_async(metrics=[metric_a])
-    await multi_metrics_writer.write_metrics_to_table_async(metrics=[metric_b])
+    await multi_metrics_writer.write_metrics_to_table_async(
+        metrics=[metric_a], telemetry_parent=None
+    )
+    await multi_metrics_writer.write_metrics_to_table_async(
+        metrics=[metric_b], telemetry_parent=None
+    )
 
     # Verify buffer contents before flush
     assert (
@@ -442,7 +469,7 @@ async def test_multiple_metric_types_flush(
     )
 
     # Flush the buffer
-    await multi_metrics_writer.flush_async()
+    await multi_metrics_writer.flush_async(telemetry_parent=None)
 
     # Verify that write_to_table_async was called for both metric types
     calls = multi_metrics_writer.my_sql_writer.write_to_table_async.call_args_list
@@ -481,8 +508,12 @@ async def test_multiple_metric_types_read(
     )
 
     # Read both types of metrics
-    result_a = await multi_metrics_writer.read_metrics_from_table_async(metric_a)
-    result_b = await multi_metrics_writer.read_metrics_from_table_async(metric_b)
+    result_a = await multi_metrics_writer.read_metrics_from_table_async(
+        metric=metric_a, telemetry_parent=None
+    )
+    result_b = await multi_metrics_writer.read_metrics_from_table_async(
+        metric=metric_b, telemetry_parent=None
+    )
 
     # Verify results
     assert result_a == metric_a_data

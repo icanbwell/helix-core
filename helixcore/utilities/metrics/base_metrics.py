@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import Dict, Any, List
+from typing import List, Dict, Any
 
 from helixcore.utilities.data_frame_types.data_frame_types import (
     DataFrameStructType,
@@ -20,8 +20,9 @@ class BaseMetric(ABC):
         """
         raise NotImplementedError("schema not implemented by subclass")
 
+    @classmethod
     @abstractmethod
-    def get_create_ddl(self, db_schema_name: str, db_table_name: str) -> str:
+    def get_create_ddl(cls, db_schema_name: str, db_table_name: str) -> str:
         raise NotImplementedError("get_create_ddl not implemented by subclass")
 
     @property

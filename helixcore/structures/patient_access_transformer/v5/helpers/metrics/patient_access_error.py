@@ -2,7 +2,7 @@ import traceback
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional, ClassVar, Dict
+from typing import List, Optional, ClassVar, Dict, override
 
 from dataclasses_json import DataClassJsonMixin, config, LetterCase
 from dataclasses_json.core import Json
@@ -212,8 +212,10 @@ class PatientAccessError(DataClassJsonMixin, BaseMetric):
     def spark_schema(self) -> DataFrameStructType:
         return self.get_schema()
 
-    def get_create_ddl(self, db_schema_name: str, db_table_name: str) -> str:
-        return self.get_create_statement_ddl(
+    @classmethod
+    @override
+    def get_create_ddl(cls, db_schema_name: str, db_table_name: str) -> str:
+        return cls.get_create_statement_ddl(
             db_schema_name=db_schema_name, db_table_name=db_table_name
         )
 

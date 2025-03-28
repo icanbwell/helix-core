@@ -5,9 +5,6 @@ from typing import Optional, Any, Dict, AsyncGenerator, List
 
 from dataclasses_json import DataClassJsonMixin
 from helixtelemetry.telemetry.providers.telemetry import Telemetry
-from spark_pipeline_framework.utilities.async_pandas_udf.v1.async_pandas_udf_parameters import (
-    AsyncPandasUdfParameters,
-)
 from helixtelemetry.telemetry.metrics.telemetry_counter import (
     TelemetryCounter,
 )
@@ -21,9 +18,6 @@ from helixtelemetry.telemetry.spans.telemetry_span_wrapper import (
     TelemetrySpanWrapper,
 )
 
-from transformers.intelligence_layer.person_clinical_data_transformer.v2.processors.run_context.run_context import (
-    PersonClinicalDataRunContext,
-)
 from helixtelemetry.telemetry.factory.telemetry_factory import (
     TelemetryFactory,
 )
@@ -34,9 +28,15 @@ from helixtelemetry.telemetry.spans.telemetry_span_creator import (
     TelemetrySpanCreator,
 )
 
-from helixcore.structures.patient_access_transformer.v5.helpers.structures.token_streaming_config import \
-    TokenStreamingConfig
-from helixcore.utilities.metrics.writer.base_metrics_writer_parameters import BaseMetricsWriterParameters
+from helixcore.structures.patient_access_transformer.v5.helpers.structures.token_streaming_config import (
+    TokenStreamingConfig,
+)
+from helixcore.utilities.async_pandas_udf.v1.async_pandas_udf_parameters import (
+    AsyncPandasUdfParameters,
+)
+from helixcore.utilities.metrics.writer.base_metrics_writer_parameters import (
+    BaseMetricsWriterParameters,
+)
 
 
 @dataclasses.dataclass

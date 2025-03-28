@@ -1,10 +1,9 @@
 from datetime import datetime
+
+from helixtelemetry.telemetry.context.telemetry_context import TelemetryContext
 from pytest import mark
 from typing import Tuple
 
-from helixcore.utilities.telemetry.telemetry_context import (
-    TelemetryContext,
-)
 
 from helixcore.structures.patient_access_transformer.v5.helpers.structures.patient_access_issue_severity import (
     PatientAccessIssueSeverity,
@@ -54,7 +53,6 @@ def get_check_clientside_error_severity_inputs(
         current_date_time=current_date_time,
         flow_name="zebra",
         page_size_for_person_clinical_data_pipeline=1000,
-        telemetry_context=TelemetryContext.get_null_context(),
         telemetry_parent=None,
         log_level=None,
     )

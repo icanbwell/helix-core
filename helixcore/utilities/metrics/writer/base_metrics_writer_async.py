@@ -3,7 +3,12 @@ from logging import Logger
 from types import TracebackType
 from typing import Any, Dict, List, Type, Sequence, Optional
 
-from helixtelemetry.telemetry.spans.telemetry_span_creator import TelemetrySpanCreator
+from helixtelemetry.telemetry.structures.telemetry_parent import (
+    TelemetryParent,
+)
+from helixtelemetry.telemetry.spans.telemetry_span_creator import (
+    TelemetrySpanCreator,
+)
 
 from helixcore.utilities.metrics.base_metrics import BaseMetric
 from helixcore.utilities.metrics.writer.base_metrics_writer_parameters import (
@@ -36,6 +41,7 @@ class BaseMetricsWriterAsync(ABC):
         self.buffer_length: Optional[int] = parameters.buffer_length
         self.max_batch_size: Optional[int] = parameters.max_batch_size
         self.telemetry_span_creator: TelemetrySpanCreator = telemetry_span_creator
+        self.parameters: BaseMetricsWriterParameters = parameters
 
     @abstractmethod
     async def __aenter__(self) -> "BaseMetricsWriterAsync":
@@ -51,23 +57,34 @@ class BaseMetricsWriterAsync(ABC):
         pass
 
     @abstractmethod
-    async def create_table_if_not_exists_async(self, *, metric: BaseMetric) -> None:
+    async def create_table_if_not_exists_async(
+        self,
+        *,
+        metric_type: Type[BaseMetric],
+        telemetry_parent: Optional[TelemetryParent],
+    ) -> None:
         pass
 
     @abstractmethod
     async def write_single_metric_to_table_async(
-        self, *, metric: BaseMetric
+        self, *, metric: BaseMetric, telemetry_parent: Optional[TelemetryParent]
     ) -> Optional[int]:
         pass
 
     @abstractmethod
     async def write_metrics_to_table_async(
-        self, *, metrics: Sequence[BaseMetric]
+        self,
+        *,
+        metrics: Sequence[BaseMetric],
+        telemetry_parent: Optional[TelemetryParent],
     ) -> Optional[int]:
         pass
 
     @abstractmethod
     async def read_metrics_from_table_async(
-        self, metric: BaseMetric
+        self,
+        *,
+        metric: BaseMetric,
+        telemetry_parent: Optional[TelemetryParent],
     ) -> List[Dict[str, Any]]:
         pass
