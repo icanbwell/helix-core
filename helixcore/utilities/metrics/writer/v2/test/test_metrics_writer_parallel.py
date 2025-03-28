@@ -5,12 +5,11 @@ from unittest.mock import Mock, AsyncMock, patch
 import pytest
 from dataclasses import dataclass
 from dataclasses_json import DataClassJsonMixin
+from helixtelemetry.telemetry.context.telemetry_context import TelemetryContext
+from helixtelemetry.telemetry.factory.telemetry_factory import TelemetryFactory
 
 from helixcore.utilities.data_frame_types.data_frame_types import (
     DataFrameStructType,
-)
-from helixcore.utilities.telemetry.telemetry_context import (
-    TelemetryContext,
 )
 
 from helixcore.utilities.async_safe_buffer.v1.async_safe_buffer import (
@@ -26,7 +25,6 @@ from helixcore.utilities.metrics.writer.v2.metrics_writer_parallel import (
 from helixcore.utilities.mysql.my_sql_writer.v2.my_sql_writer import (
     MySqlWriter,
 )
-from helixcore.utilities.telemetry.telemetry_factory import TelemetryFactory
 
 
 @dataclass

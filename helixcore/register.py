@@ -1,7 +1,7 @@
-from helixcore.utilities.telemetry.open_telemetry import OpenTelemetry
-from helixcore.utilities.telemetry.telemetry_factory import TelemetryFactory
-from helixcore.utilities.telemetry.null_telemetry import NullTelemetry
-from helixcore.utilities.telemetry.console_telemetry import ConsoleTelemetry
+from helixtelemetry.telemetry.factory.telemetry_factory import TelemetryFactory
+from helixtelemetry.telemetry.providers.console_telemetry import ConsoleTelemetry
+from helixtelemetry.telemetry.providers.null_telemetry import NullTelemetry
+from helixtelemetry.telemetry.providers.open_telemetry import OpenTelemetry
 
 
 def register() -> None:

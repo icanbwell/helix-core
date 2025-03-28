@@ -3,9 +3,8 @@ from logging import Logger
 from types import TracebackType
 from typing import Any, Dict, List, Type, Sequence, Optional, Tuple, override
 
-from helixcore.utilities.telemetry.telemetry_span_creator import (
-    TelemetrySpanCreator,
-)
+from helixtelemetry.telemetry.spans.telemetry_span_creator import TelemetrySpanCreator
+
 from helixcore.utilities.async_safe_buffer.v1.async_safe_buffer import (
     AsyncSafeBuffer,
 )

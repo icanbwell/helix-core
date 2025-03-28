@@ -3,9 +3,8 @@ from logging import Logger
 from types import TracebackType
 from typing import Any, Dict, List, Type, Sequence, Optional
 
-from helixcore.utilities.telemetry.telemetry_span_creator import (
-    TelemetrySpanCreator,
-)
+from helixtelemetry.telemetry.spans.telemetry_span_creator import TelemetrySpanCreator
+
 from helixcore.utilities.metrics.base_metrics import BaseMetric
 from helixcore.utilities.metrics.writer.base_metrics_writer_parameters import (
     BaseMetricsWriterParameters,
