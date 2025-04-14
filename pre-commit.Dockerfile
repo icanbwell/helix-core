@@ -1,4 +1,4 @@
-FROM python:3.12-alpine3.20
+FROM public.ecr.aws/docker/library/python:3.12-alpine3.20
 
 # Install git, build-essential, and pipenv
 RUN apk add --no-cache git build-base && \
