@@ -1,7 +1,6 @@
 import json
 import datetime
 
-from helixtelemetry.telemetry.context.telemetry_context import TelemetryContext
 
 from helixcore.utilities.async_pandas_udf.v1.async_pandas_udf_parameters import (
     AsyncPandasUdfParameters,

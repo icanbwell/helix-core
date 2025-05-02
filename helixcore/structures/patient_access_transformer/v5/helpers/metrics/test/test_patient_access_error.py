@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from helixtelemetry.telemetry.context.telemetry_context import TelemetryContext
 from pytest import mark
 from typing import Tuple
 

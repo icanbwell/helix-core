@@ -32,7 +32,7 @@ aiohttp=">=3.11.13"
 # structlog is needed for structured logging
 structlog = ">=23.1.0"
 # helixtelemetry is needed for sending telemetry data
-helixtelemetry= ">=1.0.0"
+helixtelemetry= ">=1.0.3"
 # ====== For OpenTelemetry ======
 opentelemetry-api = ">=1.30.0"
 opentelemetry-sdk = ">=1.30.0"

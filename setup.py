@@ -66,7 +66,7 @@ setup(
         "aiomysql>=0.2.0",
         "aiohttp>=3.11.13",
         "structlog>=23.1.0",
-        "helixtelemetry>=1.0.0",
+        "helixtelemetry>=1.0.3",
         "opentelemetry-api>=1.30.0",
         "opentelemetry-sdk>=1.30.0",
         "opentelemetry-exporter-otlp>=1.30.0",
