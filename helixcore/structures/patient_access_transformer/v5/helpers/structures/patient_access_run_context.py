@@ -71,7 +71,7 @@ class PatientAccessRunContext(DataClassJsonMixin):
     pipeline_version: Optional[str]
     """ The version of the pipeline """
 
-    intelligence_layer_run_context: Optional[PersonClinicalDataRunContext]
+    # intelligence_layer_run_context: Optional[PersonClinicalDataRunContext]
     """ used to store the run context for the intelligence layer.  If set to None, we won't run the intelligence layer """
 
     metrics_writer_parameters: Optional[BaseMetricsWriterParameters]

@@ -2,10 +2,11 @@ import json
 from dataclasses import dataclass
 from typing import List, Optional, OrderedDict, Any
 
-from helix_personmatching.logics.rule_score import RuleScore
-from helix_personmatching.logics.scoring_input import ScoringInput
-from helix_personmatching.utils.json_serializer import EnhancedJSONEncoder
-from helix_personmatching.utils.score_diagnostics_generator import (
+
+from helixcore.structures.helix_personmatching.logics.rule_score import RuleScore
+from helixcore.structures.helix_personmatching.logics.scoring_input import ScoringInput
+from helixcore.utilities.json_serializer.json_serializer import EnhancedJSONEncoder
+from helixcore.utilities.score_diagnostics_generator.score_diagnostics_generator import (
     ScoreDiagnosticsGenerator,
 )
 

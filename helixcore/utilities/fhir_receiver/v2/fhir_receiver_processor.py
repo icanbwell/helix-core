@@ -8,7 +8,8 @@ from typing import (
     AsyncGenerator,
 )
 
-
+from compressedfhir.fhir.fhir_resource import FhirResource
+from compressedfhir.fhir.fhir_resource_list import FhirResourceList
 from furl import furl
 from helix_fhir_client_sdk.exceptions.fhir_sender_exception import FhirSenderException
 from helix_fhir_client_sdk.fhir_client import FhirClient
@@ -247,7 +248,7 @@ class FhirReceiverProcessor:
                     "\n".join([e.error_text for e in errors]) if errors else None
                 )
                 status_code = response.status
-                request_url = response.url
+                request_url: Optional[str] = response.url
                 request_id = response.request_id
                 extra_context_to_return = response.extra_context_to_return
                 access_token = response.access_token
@@ -808,10 +809,10 @@ class FhirReceiverProcessor:
         response: FhirGetResponse,
     ) -> GetBatchResult:
         all_resources: FhirResourceList = response.get_resources()
-        resources_except_operation_outcomes: List[Dict[str, Any]] = [
+        resources_except_operation_outcomes: List[FhirResource] = [
             r for r in all_resources if r.get("resourceType") != "OperationOutcome"
         ]
-        operation_outcomes: List[Dict[str, Any]] = [
+        operation_outcomes: List[FhirResource] = [
             r for r in all_resources if r.get("resourceType") == "OperationOutcome"
         ]
 

@@ -46,7 +46,7 @@ def get_check_clientside_error_severity_inputs(
         pipeline_category=None,
         new_tokens_only=None,
         pipeline_version=None,
-        intelligence_layer_run_context=None,
+        # intelligence_layer_run_context=None,
         metrics_writer_parameters=None,
         pandas_udf_parameters=AsyncPandasUdfParameters(maximum_concurrent_tasks=1),
         current_date_time=current_date_time,

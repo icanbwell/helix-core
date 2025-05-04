@@ -22,6 +22,8 @@ from helixcore.utilities.metrics.writer.base_metrics_writer_parameters import (
     BaseMetricsWriterParameters,
 )
 from helixcore.utilities.mysql.my_sql_writer.v2.my_sql_writer import MySqlWriter
+from helixcore.utilities.telemetry.telemetry_attributes import TelemetryAttributes
+from helixcore.utilities.telemetry.telemetry_metric_names import TelemetryMetricNames
 
 
 class MetricsWriterParallel(BaseMetricsWriterAsync):

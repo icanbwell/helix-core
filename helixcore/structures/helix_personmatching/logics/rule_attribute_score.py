@@ -1,8 +1,12 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from helix_personmatching.models.attribute_entry import AttributeEntry
-from helix_personmatching.models.string_match_type import StringMatchType
+from helixcore.structures.helix_personmatching.models.attribute_entry import (
+    AttributeEntry,
+)
+from helixcore.structures.helix_personmatching.models.string_match_type import (
+    StringMatchType,
+)
 
 
 @dataclass
