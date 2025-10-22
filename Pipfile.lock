@@ -119,12 +119,12 @@
         },
         "aiomysql": {
             "hashes": [
-                "sha256:558b9c26d580d08b8c5fd1be23c5231ce3aeff2dadad989540fee740253deb67",
-                "sha256:b7c26da0daf23a5ec5e0b133c03d20657276e4eae9b73e040b72787f6f6ade0a"
+                "sha256:448b31e0d11b6e8dd6e8356b7f39cec0e44293b2c6e368c9e8eeeaff77b3cbec",
+                "sha256:9e850677d456dc4fea59ad871d4bcdb6adbce02326aaa32a97a43125256f23de"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.7'",
-            "version": "==0.2.0"
+            "markers": "python_version >= '3.9'",
+            "version": "==0.3.0"
         },
         "aiosignal": {
             "hashes": [
@@ -1182,12 +1182,12 @@
         },
         "pymysql": {
             "hashes": [
-                "sha256:4de15da4c61dc132f4fb9ab763063e693d521a80fd0e87943b9a453dd4c19d6c",
-                "sha256:e127611aaf2b417403c60bf4dc570124aeb4a57f5f37b8e95ae399a42f904cd0"
+                "sha256:4961d3e165614ae65014e361811a724e2044ad3ea3739de9903ae7c21f539f03",
+                "sha256:e6b1d89711dd51f8f74b1631fe08f039e7d76cf67a42a323d3178f0f25762ed9"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.7'",
-            "version": "==1.1.1"
+            "markers": "python_version >= '3.8'",
+            "version": "==1.1.2"
         },
         "python-dateutil": {
             "hashes": [
