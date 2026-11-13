@@ -59,7 +59,7 @@ setup(
         "fhir.resources<8,>=7.1.0",
         "dataclasses-json>=0.6.7",
         "boto3>=1.34.140",
-        "helix.fhir.client.sdk>=3.0.39",
+        "helix.fhir.client.sdk>=5.0.25",
         "furl>=2.1.3",
         "sqlparse>=0.5.3",
         "pymysql>=1.1.1",
